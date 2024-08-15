@@ -1,9 +1,10 @@
-fn  gray_code(n: u32) -> u32 {
+fn  build_tree(formula: &str);
+
+fn eval_formula(formula: &str) -> bool {
 
 }
 
 fn  main() {
-    
-    let result = gray_code(0);
+    let result = eval_formula("10&");
     println!("{result}");
 }
