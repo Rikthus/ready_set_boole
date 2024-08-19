@@ -1,10 +1,37 @@
-fn  build_tree(formula: &str);
+use std::{cell::RefCell, iter::Rev, rc::Rc, str::Chars};
 
-fn eval_formula(formula: &str) -> bool {
-
+type TreeNodeRef = Rc<RefCell<TreeNode>>;
+#[derive(Debug, Clone)]
+pub struct TreeNode {
+    val: char,
+    left: Option<TreeNodeRef>,
+    right: Option<TreeNodeRef>,
 }
 
-fn  main() {
-    let result = eval_formula("10&");
+fn build_node(iterator: &mut Rev<Chars<'_>>) -> Option<TreeNodeRef> {
+    if let Some(val) = iterator.next() {
+        let mut left = Default::default();
+        let mut right = Default::default();
+        if val == '&' || val == '|' || val == '^' || val == '=' {
+            left = build_node(iterator);
+            right = build_node(iterator);
+        } else if val == '!' || val == '>' {
+            left = build_node(iterator);
+        }
+        let node = TreeNode { val, left, right };
+        Some(Rc::new(RefCell::from(node)))
+    } else {
+        None
+    }
+}
+
+fn eval_formula(formula: &str) -> bool {
+    let tree = build_node(&mut formula.chars().rev());
+    println!("{tree:?}");
+    true
+}
+
+fn main() {
+    let result = eval_formula("110&|df");
     println!("{result}");
 }

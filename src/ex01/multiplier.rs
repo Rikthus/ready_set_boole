@@ -14,23 +14,16 @@ fn adder(a: u32, b: u32) -> u32 {
 }
 
 fn  multiplier(a: u32, b: u32) -> u32 {
+    let mut bit_index = 0;
     let mut result = 0;
-    let multiplied;
-    let multiplicator;
+    let mut control_bit = 1;
 
-    if a == 0 {
-        return 0;
-    }
-
-    if a > b {
-        multiplied = a;
-        multiplicator = b;
-    } else {
-        multiplied = b;
-        multiplicator = a;
-    }
-    for _ in 0..multiplicator {
-        result = adder(result, multiplied);
+    while bit_index < 32 {
+        if a & control_bit != 0 {
+            result = adder(result, b << bit_index);
+        }
+        control_bit = control_bit << 1;
+        bit_index += 1;
     }
     result
 }

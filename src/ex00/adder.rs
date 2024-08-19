@@ -1,5 +1,5 @@
 // Recursive adder
-fn  rec_adder(a: u32, b: u32) -> u32 {
+pub fn rec_adder(a: u32, b: u32) -> u32 {
     if a & b == 0 {
         return a | b;
     }
@@ -8,7 +8,7 @@ fn  rec_adder(a: u32, b: u32) -> u32 {
 }
 
 // Iteratif adder
-fn it_adder(a: u32, b: u32) -> 32 {
+fn it_adder(a: u32, b: u32) -> u32 {
     let mut carry = a & b;
     let mut sum = a ^ b;
     let mut tmp_carry;
