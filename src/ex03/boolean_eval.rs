@@ -8,6 +8,9 @@ pub struct TreeNode {
     right: Option<TreeNodeRef>,
 }
 
+#[derive(Debug)]
+struct UndefinedBehavior;
+
 fn build_node(iterator: &mut Rev<Chars<'_>>) -> Option<TreeNodeRef> {
     if let Some(val) = iterator.next() {
         let mut left = Default::default();
@@ -18,25 +21,42 @@ fn build_node(iterator: &mut Rev<Chars<'_>>) -> Option<TreeNodeRef> {
         } else if val == '!' {
             left = build_node(iterator);
         }
-        let node = TreeNode{ val, left, right };
+        let node = TreeNode { val, left, right };
         Some(Box::from(node))
     } else {
         None
     }
 }
 
-#[derive(Debug)]
-struct UndefinedBehavior;
-
 fn evaluate_node(node: Option<TreeNodeRef>) -> Result<bool, UndefinedBehavior> {
     if node.is_some() {
         let unwrapped_node = node.unwrap();
         match unwrapped_node.val {
-            '|' => return Ok(evaluate_node(unwrapped_node.left)? | evaluate_node(unwrapped_node.right)?),
-            '&' => return Ok(evaluate_node(unwrapped_node.left)? & evaluate_node(unwrapped_node.right)?),
-            '^' => return Ok(evaluate_node(unwrapped_node.left)? ^ evaluate_node(unwrapped_node.right)?),
-            '=' => return Ok(evaluate_node(unwrapped_node.left)? == evaluate_node(unwrapped_node.right)?),
-            '>' => return Ok(!evaluate_node(unwrapped_node.left)? | evaluate_node(unwrapped_node.right)?),
+            '|' => {
+                return Ok(
+                    evaluate_node(unwrapped_node.left)? | evaluate_node(unwrapped_node.right)?
+                )
+            }
+            '&' => {
+                return Ok(
+                    evaluate_node(unwrapped_node.left)? & evaluate_node(unwrapped_node.right)?
+                )
+            }
+            '^' => {
+                return Ok(
+                    evaluate_node(unwrapped_node.left)? ^ evaluate_node(unwrapped_node.right)?
+                )
+            }
+            '=' => {
+                return Ok(
+                    evaluate_node(unwrapped_node.left)? == evaluate_node(unwrapped_node.right)?
+                )
+            }
+            '>' => {
+                return Ok(
+                    !evaluate_node(unwrapped_node.left)? | evaluate_node(unwrapped_node.right)?
+                )
+            }
             '!' => return Ok(!evaluate_node(unwrapped_node.left)?),
             '1' => return Ok(true),
             '0' => return Ok(false),
@@ -47,14 +67,22 @@ fn evaluate_node(node: Option<TreeNodeRef>) -> Result<bool, UndefinedBehavior> {
     }
 }
 
-fn eval_formula(formula: &str) -> bool {
-    let tree_root = build_node(&mut formula.chars().rev());
-    // println!("{tree_root:?}");
-    let result = evaluate_node(tree_root);
-    if result.is_ok() {
-        result.unwrap()
-    } else {
-        println!("Undefined Behavior");
-        false
+fn parse_characters(formula: &str) -> bool {
+    let symbols = ['&', '|', '^', '=', '>', '!', '1', '0'];
+
+    for c in formula.chars() {
+        if !symbols.contains(&c) {
+            return false;
+        }
     }
+    true
+}
+
+fn evaluate_formula(formula: &str) -> Result<bool, UndefinedBehavior> {
+    if !parse_characters(formula) {
+        return Err(UndefinedBehavior);
+    }
+    let tree_root = build_node(&mut formula.chars().rev());
+    let result = evaluate_node(tree_root);
+    result
 }
