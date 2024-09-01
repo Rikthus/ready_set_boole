@@ -49,10 +49,29 @@ fn check_alpha_order(formula: &str) -> bool {
     true    
 }
 
+fn check_logic(formula: &str) -> bool {
+    let mut nb_values = 0;
+    let mut nb_ops = 0;
+
+    for c in formula.chars() {
+        if c.is_alphabetic() {
+            nb_values += 1;
+        } else if c != '!' {
+            nb_ops += 1;
+        }
+    }
+    if nb_values - 1 != nb_ops {
+        return false;
+    }
+    true
+}
+
 fn parse_formula(formula: &str) -> bool {
     if !check_characters(formula) {
         return false;
     } else if !check_alpha_order(formula) {
+        return false;
+    } else if !check_logic(formula) {
         return false;
     }
     true
