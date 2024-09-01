@@ -67,7 +67,7 @@ fn evaluate_node(node: Option<TreeNodeRef>) -> Result<bool, UndefinedBehavior> {
     }
 }
 
-fn parse_characters(formula: &str) -> bool {
+fn check_characters(formula: &str) -> bool {
     let symbols = ['&', '|', '^', '=', '>', '!', '1', '0'];
 
     for c in formula.chars() {
@@ -78,8 +78,34 @@ fn parse_characters(formula: &str) -> bool {
     true
 }
 
+fn check_logic(formula: &str) -> bool {
+    let mut nb_values = 0;
+    let mut nb_ops = 0;
+
+    for c in formula.chars() {
+        if c == '1' || c == '0' {
+            nb_values += 1;
+        } else if c != '!' {
+            nb_ops += 1;
+        }
+    }
+    if nb_values - 1 != nb_ops {
+        return false;
+    }
+    true
+}
+
+fn parse_formula(formula: &str) -> bool {
+    if !check_characters(formula) {
+        return false;
+    } else if !check_logic(formula) {
+        return false;
+    }
+    true
+}
+
 fn evaluate_formula(formula: &str) -> Result<bool, UndefinedBehavior> {
-    if !parse_characters(formula) {
+    if !parse_formula(formula) {
         return Err(UndefinedBehavior);
     }
     let tree_root = build_node(&mut formula.chars().rev());
