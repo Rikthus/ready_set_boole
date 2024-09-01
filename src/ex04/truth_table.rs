@@ -112,29 +112,6 @@ fn  generate_combinations(formula: &str) -> Vec<Vec<bool>> {
     return comb_list;
 }
 
-fn  print_combs(combs: Vec<Vec<bool>>) {
-    let nb_vars = combs[0].len();
-
-    for (i, alpha) in "ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars().enumerate() {
-        if i + 1 == nb_vars {
-            break;
-        }
-        print!("| {} ", alpha);
-    }
-    println!("| = |");
-
-    for i in 0..nb_vars {
-        print!("|---");
-    }
-    println!("|");
-    for comb in combs {
-        for val in comb {
-            print!("| {} ", val as i32);
-        }
-        println!("|");
-    }
-}
-
 fn build_node(iterator: &mut Rev<Chars<'_>>) -> Option<TreeNodeRef> {
     if let Some(val) = iterator.next() {
         let mut left = Default::default();
@@ -242,4 +219,36 @@ fn generate_truth_table(formula: &str) -> Result<Vec<Vec<bool>>, InvalidFormula>
         }
     }
     Ok(truth_table)
+}
+
+fn  print_result(combs: Vec<Vec<bool>>) {
+    let nb_vars = combs[0].len();
+
+    for (i, alpha) in "ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars().enumerate() {
+        if i + 1 == nb_vars {
+            break;
+        }
+        print!("| {} ", alpha);
+    }
+    println!("| = |");
+
+    for _i in 0..nb_vars {
+        print!("|---");
+    }
+    println!("|");
+    for comb in combs {
+        for val in comb {
+            print!("| {} ", val as i32);
+        }
+        println!("|");
+    }
+}
+
+fn  print_truth_table(formula: &str) {
+    let result = generate_truth_table(formula);
+    if result.is_ok() {
+        print_result(result.unwrap());
+    } else {
+        println!("Incorrect Formula");
+    }
 }
