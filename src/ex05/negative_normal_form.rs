@@ -114,7 +114,7 @@ fn build_node(iterator: &mut Rev<Chars<'_>>) -> Option<TreeNodeRef> {
     }
 }
 
-fn  convert_to_cnf(node: Option<TreeNodeRef>, formula: &mut String, is_neg: bool) {
+fn  convert_to_nnf(node: Option<TreeNodeRef>, formula: &mut String, is_neg: bool) {
     let unwrapped_node = node.unwrap();
     let left = unwrapped_node.left;
     let right = unwrapped_node.right;
@@ -154,17 +154,16 @@ fn  convert_to_cnf(node: Option<TreeNodeRef>, formula: &mut String, is_neg: bool
                 convert_to_nnf(right, formula, true);
             }
         }
-        // UNSURE
         '=' => {
             if is_neg {
                 formula.insert(0, '&');
 
                 formula.insert(0, '|');
-                convert_to_nnf(left.clone(), formula, true);
+                convert_to_nnf(left.clone(), formula, false);
                 convert_to_nnf(right.clone(), formula, false);
 
                 formula.insert(0, '|');
-                convert_to_nnf(left, formula, false);
+                convert_to_nnf(left, formula, true);
                 convert_to_nnf(right, formula, true);
             } else {
                 formula.insert(0, '|');
@@ -178,17 +177,16 @@ fn  convert_to_cnf(node: Option<TreeNodeRef>, formula: &mut String, is_neg: bool
                 convert_to_nnf(right, formula, false);                
             }
         }
-        // UNSURE
         '^' => {
             if is_neg {
-                formula.insert(0, '|');
-
                 formula.insert(0, '&');
-                convert_to_nnf(left.clone(), formula, false);
+
+                formula.insert(0, '|');
+                convert_to_nnf(left.clone(), formula, true);
                 convert_to_nnf(right.clone(), formula, false);
                 
-                formula.insert(0, '&');
-                convert_to_nnf(left, formula, true);
+                formula.insert(0, '|');
+                convert_to_nnf(left, formula, false);
                 convert_to_nnf(right, formula, true);                
             } else {
                 formula.insert(0, '|');

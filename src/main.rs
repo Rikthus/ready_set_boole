@@ -154,17 +154,16 @@ fn  convert_to_nnf(node: Option<TreeNodeRef>, formula: &mut String, is_neg: bool
                 convert_to_nnf(right, formula, true);
             }
         }
-        // UNSURE
         '=' => {
             if is_neg {
                 formula.insert(0, '&');
 
                 formula.insert(0, '|');
-                convert_to_nnf(left.clone(), formula, true);
+                convert_to_nnf(left.clone(), formula, false);
                 convert_to_nnf(right.clone(), formula, false);
 
                 formula.insert(0, '|');
-                convert_to_nnf(left, formula, false);
+                convert_to_nnf(left, formula, true);
                 convert_to_nnf(right, formula, true);
             } else {
                 formula.insert(0, '|');
@@ -179,16 +178,22 @@ fn  convert_to_nnf(node: Option<TreeNodeRef>, formula: &mut String, is_neg: bool
             }
         }
         // UNSURE
+        // (!A & B) | (A & !B)
+
+        // !((!A & B) | (A & !B))
+        // !(!A & B) & !(A & !B) DE morgans laws
+
+        // (A | !B) & (!A | B)
         '^' => {
             if is_neg {
-                formula.insert(0, '|');
-
                 formula.insert(0, '&');
-                convert_to_nnf(left.clone(), formula, false);
+
+                formula.insert(0, '|');
+                convert_to_nnf(left.clone(), formula, true);
                 convert_to_nnf(right.clone(), formula, false);
                 
-                formula.insert(0, '&');
-                convert_to_nnf(left, formula, true);
+                formula.insert(0, '|');
+                convert_to_nnf(left, formula, false);
                 convert_to_nnf(right, formula, true);                
             } else {
                 formula.insert(0, '|');
@@ -232,6 +237,6 @@ fn negation_normal_form(formula: &str) -> String {
     return nnf;
 }
 fn main() {
-    let nnf = negation_normal_form("AB=");
+    let nnf = negation_normal_form("AB^!");
     println!("{}", nnf);
 }
