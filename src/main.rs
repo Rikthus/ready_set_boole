@@ -177,13 +177,6 @@ fn  convert_to_nnf(node: Option<TreeNodeRef>, formula: &mut String, is_neg: bool
                 convert_to_nnf(right, formula, false);                
             }
         }
-        // UNSURE
-        // (!A & B) | (A & !B)
-
-        // !((!A & B) | (A & !B))
-        // !(!A & B) & !(A & !B) DE morgans laws
-
-        // (A | !B) & (!A | B)
         '^' => {
             if is_neg {
                 formula.insert(0, '&');
@@ -223,20 +216,74 @@ fn  convert_to_nnf(node: Option<TreeNodeRef>, formula: &mut String, is_neg: bool
     }
 }
 
-fn negation_normal_form(formula: &str) -> String {
+fn nnf_to_cnf(node: Option<TreeNodeRef>, formula: &mut String) {
+    let unwrapped_node = node.unwrap();
+    let left = unwrapped_node.left;
+    let right = unwrapped_node.right;
+    let val = unwrapped_node.val;
+
+    // NEED to change all the formulas to replace what is not an OR ops.
+    match val {
+        '|' => {
+            formula.insert(0, '|');
+            nnf_to_cnf(left, formula);
+            nnf_to_cnf(right, formula);
+        }
+        '&' => {
+            formula.insert(0, '&');
+            nnf_to_cnf(left, formula);
+            nnf_to_cnf(right, formula);
+        }
+        '>' => {
+            formula.insert(0, '|');
+            nnf_to_cnf(left, formula);
+        }
+        '=' => {
+            formula.insert(0, '|');
+
+            formula.insert(0, '&');
+            nnf_to_cnf(left.clone(), formula);
+            nnf_to_cnf(right.clone(), formula);
+
+            formula.insert(0, '&');
+            nnf_to_cnf(left, formula);
+            nnf_to_cnf(right, formula);
+        }
+        '^' => {
+            formula.insert(0, '|');
+            
+            formula.insert(0, '&');
+            nnf_to_cnf(left.clone(), formula);
+            nnf_to_cnf(right.clone(), formula);
+            
+            formula.insert(0, '&');
+            nnf_to_cnf(left, formula);
+            nnf_to_cnf(right, formula);
+        }
+        '!' => nnf_to_cnf(left, formula),
+        _ => formula.insert(0, val),
+    }
+}
+
+fn conjunctive_normal_form(formula: &str) -> String {
     if !parse_formula(formula) {
         println!("Invalid formula");
         return "".to_string();
     }
 
     let pre_nnf = reduce_negation(formula.to_string());
-    let tree_root = build_node(&mut pre_nnf.chars().rev());
+    let pre_nnf_tree_root = build_node(&mut pre_nnf.chars().rev());
     let mut nnf = String::new();
-    convert_to_nnf(tree_root, &mut nnf, false);
+    convert_to_nnf(pre_nnf_tree_root, &mut nnf, false);
 
-    return nnf;
+    let pre_cnf_tree_root = build_node(&mut nnf.chars().rev());
+    let mut cnf = String::new();
+    nnf_to_cnf(pre_cnf_tree_root, &mut cnf);
+
+    return cnf;
 }
+
+
 fn main() {
-    let nnf = negation_normal_form("AB^!");
-    println!("{}", nnf);
+    println!("{}", conjunctive_normal_form("AB^!"));
 }
