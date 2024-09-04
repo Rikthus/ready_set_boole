@@ -236,6 +236,6 @@ fn sat(formula: &str) -> bool {
     return false;
 }
 
-fn main() {
-    println!("{}", sat("AB&"));
-}
+// fn main() {
+//     println!("{}", sat("AB&"));
+// }
